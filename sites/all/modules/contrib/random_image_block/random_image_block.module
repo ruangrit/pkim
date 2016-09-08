@@ -1,0 +1,232 @@
+<?php if ( ! defined('DRUPAL_ROOT')) exit('No direct script access allowed');
+/**
+ *
+ * Originally based on Drupal7 Block Example (and Advanced Help example)
+ * Alterations Copyright (C) 2012 PerceptiSys Ltd
+ * Licensed for reuse using the Gnu Public License (GPL) version 3.0
+ * or later. See: http://www.gnu.org/licenses/gpl.html
+ *
+ * THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * @file
+ * Module file for random_image_block.
+ */
+
+$imageDirectory = variable_get('random_image_block_image_directory', 'sites/all/libraries/randomImages');
+/* choose the random image */
+$imageListFile = DRUPAL_ROOT.'/'.$imageDirectory.'/'.variable_get('random_image_block_image_list_php', 'imageList.php');
+if (file_exists($imageListFile)) {
+  // There is no longer any simple way of catching syntax exceptions
+  // in a dynamic require!
+  // (even the user defined exception handler does not catch syntax errors ;-(
+  //   http://php.net/manual/en/function.set-error-handler.php
+  //
+  // The php_check_syntax page has some (complex) solutions
+  //   http://php.net/manual/en/function.php-check-syntax.php
+  //
+  // WE WILL NOT EVEN ATTEMPT TO CATCH SYNTAX ERRORS AT THIS TIME
+  //
+  require_once($imageListFile);
+}
+
+/**
+ * @defgroup random_image_block 
+ * @ingroup other
+ * @{
+ * Based upon the Drupal7 Block example.
+ *
+ * This block implements a simple random image block.  It takes it images
+ * from a specified directory and randomly displays this image for each
+ * new hit on the server.
+ */
+
+/**
+ * Implements hook_menu().
+ *
+ * Provides a default help page to explain what this module does.
+ */
+function random_image_block_menu() {
+  // View help topic index.
+  $items['admin/random_image_block_menu'] = array(
+    'title' => 'Help for Random Image Block',
+    'page callback' => 'random_image_block_index_page',
+    'access arguments' => array('view advanced help index'),
+    'weight' => 9,
+  );
+  return $items;
+}
+
+/**
+ * Simple page function to explain how this module works.
+ */
+function random_image_block_index_page() {
+  $output = theme('advanced_help_topic', array(
+   'module' => 'random_image_block',
+   'topic' => 'about-rib',
+   )
+  );
+  $output .= '&nbsp;' . t('Click the help icon to view some example help about the PHP programming language (from wikipedia.org). Be sure to run cron to update the index if you want to try out the search features.');
+  return $output;
+}
+
+/**
+ * Implements hook_block_info().
+ *
+ * This hook declares what blocks are provided by the module.
+ */
+function random_image_block_block_info() {
+  $blocks = array();
+
+  if (!function_exists('random_image_block_get_image_list')) {
+    drupal_set_message("Could not find the function random_image_block_get_image_list in the Random Image Block module current_image_key; check your configuration of the Random Image Block.", "error");
+    return $blocks;
+  }
+  $imageList = random_image_block_get_image_list();
+
+  foreach ($imageList as $aFamilyName => $aFamilyImageList) {
+    $blocks['random_image'.'='.$aFamilyName] = array(
+      'info' => t('Display a random image from '.$aFamilyName),
+//      'region' => 'header',
+      'cache' => DRUPAL_NO_CACHE,
+    );
+  }
+
+  return $blocks;
+}
+
+/**
+ * Implements hook_block_configure().
+ *
+ * This hook declares configuration options for blocks provided by this module.
+ */
+function random_image_block_block_configure($delta = '') {
+  $form = array();
+  $form['random_image_block_image_directory'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Image Directory'),
+    '#size' => 60,
+    '#description' => t('This is the location of the image files to be randomly displayed in this block. This directory is located relative to the root of your Drupal installation.'),
+    '#default_value' => variable_get('random_image_block_image_directory',  t('sites/all/libraries/randomImages')),
+  );
+  $form['random_image_block_image_list_php'] = array(
+    '#type' => 'textfield',
+    '#title' => t('List of images to use returned by a php function'),
+    '#size' => 60,
+    '#description' => t('This is the name of a php file which implements the global function, random_image_block_get_image_list, which returns an array of descriptions of each image to be randomly displayed in this block. This file is expected to be located in the image directory.'),
+    '#default_value' => variable_get('random_image_block_image_list_php',  t('imageList.php')),
+  );
+  $form['random_image_block_redirect_url'] = array(
+    '#type' => 'textfield',
+    '#title' => t('Redirect URL'),
+    '#size' => 60,
+    '#description' => t('This is the URL to which the user will be redirected if the click on an image.'),
+    '#default_value' => variable_get('random_image_block_redirect_url',  t('node/1')),
+  );
+  return $form;
+}
+
+/**
+ * Implements hook_block_save().
+ *
+ * This hook declares how the configured options for a block
+ * provided by this module are saved.
+ */
+function random_image_block_block_save($delta = '', $edit = array()) {
+  variable_set('random_image_block_image_directory',     $edit['random_image_block_image_directory']);
+  variable_set('random_image_block_image_list_php',     $edit['random_image_block_image_list_php']);
+  variable_set('random_image_block_redirect_url',        $edit['random_image_block_redirect_url']);
+  return;
+}
+
+/**
+ * Implements hook_block_view().
+ *
+ * This hook generates the contents of the blocks themselves.
+ */
+function random_image_block_block_view($delta = '') {
+  $block['subject'] = t('Random Image');
+  $block['content'] = random_image_block_contents($delta);
+  return $block;
+}
+
+/**
+ * A module-defined block content function.
+    '#theme' => 'image',
+    '#markup' => t('this is a test'),
+ */
+function random_image_block_contents($which_block) {
+  if (!function_exists('random_image_block_get_image_list')) {
+    drupal_set_message("Could not find the function random_image_block_get_image_list in the Random Image Block module contents; check your configuration of the Random Image Block.", "error");
+    return array();
+  }
+
+  $familyList = random_image_block_get_image_list();
+
+  $aFamilyName = array_pop(preg_split('/=/', $which_block));
+  if (!isset($aFamilyName) || (strlen($aFamilyName) < 1)) {
+    drupal_set_message("Could not determine image family name");
+    return array();
+  }
+
+  $imageList = $familyList[$aFamilyName];
+  $currentImageKeys = random_image_block_get_current_image_keys();
+  $image = $imageList[$currentImageKeys[$aFamilyName]];
+  $imageDirectory = variable_get('random_image_block_image_directory', 'sites/all/libraries/randomImages');
+  $imageUrl         = $imageDirectory.'/'.$aFamilyName.'/'.$image['url'];
+ 
+  $imageVariables = array(
+    'path' => file_create_url($imageUrl), 
+#    'width' => $image['width'],
+#    'height' => $image['height'],
+    'attributes' => array( 'class' => 'random-image-block ramdon-image-block-'.$aFamilyName),
+    'alt' => $image['title'],
+    'title' => $image['title'],
+  );
+
+  $linkVariables = array(
+    'text' => theme_image($imageVariables),
+    'path'  => variable_get('random_image_block_redirect_url', 'node/1'),
+    'options' => array(
+      'html'  => 1,
+      'attributes' => array()
+    ),
+  );
+
+  # see: http://api.drupal.org/api/drupal/includes!common.inc/function/drupal_add_css/7
+  drupal_add_css("img.random-image-block { width: 100%; }", 
+                 array('type'=>'inline'));
+
+  return array(
+    '#markup' => theme_link($linkVariables),
+  );
+}
+
+function random_image_block_get_current_image_keys() {
+  static $current_image_keys;
+  if (! isset($current_image_keys)) {
+    $current_image_keys = array();
+
+    if (!function_exists('random_image_block_get_image_list')) {
+      drupal_set_message("Could not find the function random_image_block_get_image_list in the Random Image Block module current_image_key; check your configuration of the Random Image Block.", "error");
+      return array();
+    }
+
+    $familyList = random_image_block_get_image_list();
+    foreach ($familyList as $aFamilyName => $imageList) {
+      $keys = array_keys($imageList);
+      $randomIndex = rand(0, count($keys)-1);
+      $current_image_keys[$aFamilyName] = $keys[$randomIndex];
+    }
+  }
+  return $current_image_keys;
+}
+
+/**
+ * @} End of "defgroup random_image_block".
+ */

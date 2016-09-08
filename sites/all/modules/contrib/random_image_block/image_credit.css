@@ -1,0 +1,15 @@
+  .rib-image-credit {
+    float: left;
+    width: 300px;
+    height: 400px;
+    border: 1px solid #999;
+    margin: 0 15px 15px 0;
+    padding: 5px;
+    text-align: center
+  }
+  img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto
+  }
+

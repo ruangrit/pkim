@@ -1,0 +1,77 @@
+<?php
+function druprong_init () {
+  drupal_add_css(drupal_get_path('module', 'druprong').'/dev.css');
+  if ($_GET['q'] == 'home') {
+    
+    header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+    header("Expires: Sat, 26 Jul 1997 05:00:00 GMT");
+  }
+
+}
+function druprong_form_alter(&$form, $form_state) {
+  if ($form['#id'] == 'contact-site-form') {
+
+    $form['subject']['#access'] = FALSE;
+    $form['subject']['#required'] = FALSE;
+    $form['mail']['#default_value'] = 'admin@dedchongmankong.com';
+
+    $form['name']['#access'] = FALSE;
+    $form['name']['#required'] = FALSE;
+
+    $form['mail']['#access'] = FALSE;
+    $form['mail']['#required'] = FALSE;
+  }
+}
+
+/**
+* Implements hook_block_info().
+*/
+function druprong_block_info() {
+  $blocks = array();
+  $blocks['menu_nav'] = array(
+    'info' => t('menu navigator'),
+  );
+  $blocks['in_front'] = array(
+    'info' => t('In front page'),
+  );
+  return $blocks;
+}
+/**
+* Implements hook_block_view().
+*/
+function druprong_block_view($delta = '') {
+  $block = array();
+  switch ($delta) {
+    case 'menu_nav':
+      $block['subject'] = '';
+      $block['content'] = _menu_nav_content();
+      break;
+    case 'in_front':
+      $block['subject'] = '';
+      $block['content'] = _in_front_content();
+      break;
+  }
+  return $block;
+}
+function _menu_nav_content() {
+  $output = t('Hello world');
+  return $output;
+}
+function _in_front_content() {
+  $images = field_get_items('node', node_load(3), 'field_image');
+  $image_rand = array_rand($images, 1);
+  $image_url = file_create_url($images[$image_rand]['uri']);
+  $output = "<img src=".$image_url." style='padding-top: 40px;'>"; 
+
+  if (isset($_SESSION['nid'])) {
+    $output .= "<div style='display:none' id='nid'>".$_SESSION['nid']."</div>";
+    drupal_session_start();
+    unset($_SESSION['nid']);
+  }
+  else {
+    $output .= "<div style='display:none' id='nid'>xx</div>";
+  }
+
+  //$output = '<video id="covervideo" autoplay="" loop="" preload="auto" style="width: 800px"><source src="http://cdn.shopify.com/s/files/1/0116/9792/t/16/assets/frontpage-video.mp4?9724"></video>';
+  return $output;
+}

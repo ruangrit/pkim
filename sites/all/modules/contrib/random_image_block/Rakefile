@@ -1,0 +1,19 @@
+# Copyright (C) 2012 PerceptiSys Ltd
+# Licensed for reuse using the Gnu Public License (GPL) version 3.0
+# or later. See: http://www.gnu.org/licenses/gpl.html
+#
+# THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+# EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+# MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+# IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+# CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+# TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+# SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+file 'help/about-rib.html' => 'README.creole' do
+  require 'creole'
+  html = Creole.creolize(File.open('README.creole', 'r').read);
+  File.open('help/about-rib.html', 'w').write(html);
+end
+
+task :default => 'help/about-rib.html';

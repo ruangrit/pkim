@@ -1,0 +1,215 @@
+= Random Image Block =
+
+== Description ==
+
+This Drupal 7.x Random Image Block module displays random images taken from a
+specified directory.  It obtains its list of images to display by requiring
+a php file (imageList.php) which defines one function which returns a 
+keyed-array of keyed-arrays. This random image block is not cached so a new 
+image is displayed for each hit to the website.
+
+== Installation ==
+
+Download (or clone from git:~/~/github.com/stephengaito/drupal-randomImageBlock.git )
+ and move the contents to your Drupal modules directory.
+
+Once you have enabled the module from the Drupal modules page, you can then
+go to 
+{{{
+Admin | Structure | Blocks
+}}}
+page to set which region you want the random image block to be displayed in.  
+
+On the block page you will see a "configure" link 
+to the right of the random image block, clicking on this link will take you 
+to the standard block configuraiton page.  The random image block has three 
+additional variables (all text) which you may need to change to suit your 
+website's needs.
+
+* **Image Directory** This is the directory, usually placed in your Drupal's 
+public files directory, from which the images will be served by your webserver. 
+You will need to ensure that you have manually created this directory and 
+populated it with the images you want to randomly display in your block. You
+should also ensure that your webserver knows how to server these images as
+static files.
+
+* **Image List PHP** This is a PHP file which defines the global function
+random_image_block_get_image_list(). The image list php is loaded relative 
+to the image directory. This global function (which takes no arguments) 
+returns a keyed-array of keyed-arrays. The outer array holds one keyed-array
+for each image to be displayed. Each of the inner arrays defines the following
+values/keys:
+** **id** uniquely idenfies the full image associated with the current image.
+The original use of this module was to serve random banner images cropped
+from larger images taken from Flickr.
+** **url** the basename of the image to be served. 
+** **title** a title for the image.
+** **shortTitle** a short title for the image.
+** **width** the width of the image.
+** **height** the height of the image.
+** **license** an html link to the license used by this image.
+** **shortCC** the short Creative Commons indicator for this license (by, 
+by-sa, etc)
+** **accessedOn** the date on which this image's license was last accessed.
+** **nameHtml** an html link to the photo stream or website associated with
+the image's owner. Use to give credit to the image owner.
+** **shareHtml** an html fragment which can be used to display the full image
+in order to give the image's owner appropriate Creative Commons credit.
+
+* **Redirect URL** The randomly displayed image is actually a standard HTML 
+link. The redirect URL provides the href for this link. This url can be as 
+simple as "node/1".
+
+== Usage ==
+
+Once enabled in a given region in your theme, a different randomly selected
+image should be displayed for each hit on your website.
+
+The Random Image Block module defines Drupal7 tokens which can be used to 
+embed any of the information specified in the Image List PHP structure, in 
+any arbitrary node on your website. To make full use of these tokens, you will
+need to install and enable the Token Filter module, //and// you will need to
+specifically include the use of the Token Filter module in one or more of your
+Text Formats (by going to your Drupal websites 
+{{{
+Admin | Configuration | Content authoring | Text Format
+}}}
+page).
+
+Most of the tokens take an additional variable tag which is the primary key 
+into the outer keyed-array returned by the random_image_block_get_image_list
+function. You can also use the additional variable tag 'current-image' to 
+specify the requested information for the currently displayed random image. 
+In the list of tokens, below, this variable tag is represented by '?'.
+
+The tokens defined are:
+* **[rib:credits]** an html fragment which credits the owners of all images
+currently displayed by the random image block.
+* **[rib:credit:?]** an html fragment which credits the owner of the specified
+image (note the last tag is a variable tag).
+* **[rib:url:?]** the url for the specified image.
+* **[rib:title:?]** the title for the specified image.
+* **[rib:shortTitle:?]** the short title for the specified image.
+* **[rib:width:?]** the width of the specified image.
+* **[rib:height:?]** the height of the specified image.
+* **[rib:license:?]** an html link to the license for the specified image.
+* **[rib:shortCC:?]** the Creative Commons indicator for the specified image 
+(by, by-sa, etc).
+* **[rib:accessedOn:?]** the date on which the specified image's license was 
+last checked.
+* **[rib:nameHtml:?]** an html link to the photo stream or website associated
+with the specified image's owner. Used to credit the image's owner.
+* **[rib:shareHtml:?]** an html fragment which includes a small version of the
+full image in the image owner's photo stream or website. Used to credit the
+image's owner.
+
+== Online Help ==
+
+This README file is provided online via the Druapl Advanced Help module. To 
+read it go to the 
+{{{
+  Admin | Advanced Help | Random Image Block | About Random Image Block 
+}}}
+
+== Dependencies ==
+
+The Random Image Block module depends upon the following Drupal 7.x modules:
+* Block (core module)
+* Token (core module)
+* Token Filter
+* Advanced Help
+
+== Example imageList.php file ==
+
+The following code provides an example (statically defined) imageList.php file. Note the use of a function scoped static variable.
+
+{{{
+
+<?php 
+
+/*
+ * Copyright (c) .....
+ */
+
+function random_image_block_get_image_list() {
+  static $imageList;
+  if (! isset($imageList) ) {
+    $imageList = Array(
+      'flickr-185092747-mouse-eyes-banner.jpg' => Array (
+        'id'         => "185092747",
+        'url'        => "flickr-185092747-mouse-eyes-banner.jpg",
+        'title'      => "mouse (mouse eyes)",
+        'shortTitle' => "mouse",
+        'width'      =>  940,
+        'height'     =>  100,
+        'license'    => "http://creativecommons.org/licenses/by/2.0/",
+        'shortCC'    => "by",
+        'accessedOn' => "2012-02-05",
+        'nameHtml'   => "<a href=\"http://www.flickr.com/photos/braydawg/\">BRAYDAWG</a>",
+        'shareHtml'  => "<a href=\"http://www.flickr.com/photos/braydawg/185092747/\" title=\"mouse by BRAYDAWG, on Flickr\"><img src=\"http://farm1.staticflickr.com/71/185092747_9c240a557e_m.jpg\" width=\"240\" height=\"160\" alt=\"mouse\"></a>"
+      ),
+
+...
+
+      'flickr-6007008906-mouse-banner.jpg' => Array (
+        'id'         => "6007008906",
+        'url'        => "flickr-6007008906-mouse-banner.jpg",
+        'title'      => "Field Mouse-Explore 8/31/11 #431 (mouse)",
+        'shortTitle' => "Field Mouse-Explore 8/31/11 #431",
+        'width'      =>  940,
+        'height'     =>  100,
+        'license'    => "http://creativecommons.org/licenses/by/2.0/",
+        'shortCC'    => "by",
+        'accessedOn' => "2012-02-05",
+        'nameHtml'   => "<a href=\"http://www.flickr.com/photos/goingslo/\">goingslo</a>",
+        'shareHtml'  => "<a href=\"http://www.flickr.com/photos/goingslo/6007008906/\" title=\"Field Mouse-Explore 8/31/11 #431 by goingslo, on Flickr\"><img src=\"http://farm7.staticflickr.com/6123/6007008906_387ba92104_m.jpg\" width=\"240\" height=\"155\" alt=\"Field Mouse-Explore 8/31/11 #431\"></a>"
+      ),
+    );
+  }
+  return $imageList;
+}
+
+}}}
+
+Alternatively, it is entirely possible for you to provide php code which 
+obtains this information by dynamically searching through the image directory. 
+However using staticly defined php arrays together with the use of php caching
+(such as APC) probably greatly reduces the over all load on your webserver.
+
+== Future development ==
+
+This is not a project/module on the Drupal 7.x website.  While I need this 
+random image block module for my own website, I do not currently have the time 
+or resources to maintain this as any official project/module.
+
+However I have seen enough requests for a random image block that I felt it
+would be useful to others as is. As such I have tried to tidy it up and provide
+sufficient documentation so that others can make use of it. To ensure others 
+have access to this module, I have placed my sources on GitHub 
+( https://github.com/stephengaito/drupal-randomImageBlock )
+
+I welcome anyone who wants to extend or develop this module further, to fork
+this GitHub project 
+( git:~/~/github.com/stephengaito/drupal-randomImageBlock.git ).
+
+Sharing is great.
+
+== License ==
+
+This module was originally based on the Drupal7
+* Block example
+* Token example
+* Advanced Help example
+
+Alterations are Copyright (C) 2012 PerceptiSys Ltd.
+
+Licensed for reuse using the Gnu Public License (GPL) version 3.0
+or later. See: http://www.gnu.org/licenses/gpl.html
+
+THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

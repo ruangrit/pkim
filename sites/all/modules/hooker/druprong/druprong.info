@@ -1,0 +1,4 @@
+name = "Druprong hook"
+description = "Druporng hook add jquery-migrate version 1.2.1"
+version = "7.x-1.0"
+core = "7.x"

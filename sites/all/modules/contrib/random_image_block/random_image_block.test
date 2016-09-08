@@ -1,0 +1,79 @@
+<?php if ( ! defined('DRUPAL_ROOT')) exit('No direct script access allowed');
+/**
+ *
+ * Originally based on Drupal7 Block Example
+ * Alterations Copyright (C) 2012 PerceptiSys Ltd
+ * Licensed for reuse using the Gnu Public License (GPL) version 3.0
+ * or later. See: http://www.gnu.org/licenses/gpl.html
+ *
+ * THIS SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ * IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ * CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ * TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ * SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ *
+ * ALAS AT THE MOMENT THIS DOES NOT REALLY TEST random_image_block MODULE
+ *
+ * @file
+ * Test case for testing the random image block module.
+ */
+class RandomImageBlockTestCase extends DrupalWebTestCase {
+  protected $web_user;
+
+  public static function getInfo() {
+    return array(
+      'name' => 'Random Image Block functionality',
+      'description' => 'Test the configuration options and block created by the Random Image Block module.',
+      'group' => 'Other',
+    );
+  }
+
+  /**
+   * Enable modules and create user with specific permissions.
+   */
+  function setUp() {
+    parent::setUp('random_image_block', 'search');
+    // Create user. Search content permission granted for the search block to
+    // be shown.
+    $this->web_user = $this->drupalCreateUser(array('administer blocks', 'search content', 'access contextual links'));
+  }
+
+  /**
+   * Login user, create an example node, and test block functionality through
+   * the admin and user interfaces.
+   */
+  function testRandomImageBlockBasic() {
+    // Login the admin user.
+    $this->drupalLogin($this->web_user);
+
+    // Find the blocks in the settings page.
+    $this->drupalGet('admin/structure/block');
+    $this->assertRaw(t('Display a random image from a specified directory'), t('Block random image found.'));
+
+    // Verify the default settings for block are processed.
+    $this->assertFieldByName('blocks[random_image][region]', 'header', t('Random Image block is enabled in header successfully verified.') );
+
+    // Verify that blocks are not shown
+    $this->drupalGet('/');
+    $this->assertNoRaw( t('Title of first block (example_configurable_text)'), t('Random Image Block not found on main page.'));
+
+    // Enable the Configurable text block and verify
+    $this->drupalPost('admin/structure/block', array('blocks[random_image][region]' => 'header'), t('Save blocks'));
+    $this->assertFieldByName('blocks[random_image][region]', 'header', t('Random image block is enabled in header successfully verified.') );
+
+    // Verify that blocks are there. Empty block will not be shown, because it is empty
+    $this->drupalGet('/');
+    $this->assertRaw( t('Title of first block (example_configurable_text)'), t('Block random image found on main page.'));
+
+    // Change content of configurable text block
+    $string = $this->randomName();
+    $this->drupalPost('admin/structure/block/manage/random_image_block/example_configurable_text/configure', array('random_image_block_string' => $string), t('Save block'));
+
+    // Verify that new content is shown
+    $this->drupalGet('/');
+    $this->assertRaw( $string, t('Content of configurable text block successfully verified.'));
+
+  }
+}
