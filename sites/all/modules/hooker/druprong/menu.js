@@ -10,9 +10,14 @@ $(document).ready(function () {
 
   $('#block-views-menu-block .item-list').find('ul').hide();
   $('#block-views-menu-block h3').click(function () {
+
+    var display = $(this).siblings('ul').css('display');
     $('#block-views-menu-block .item-list').find('ul').hide();
-    $(this).siblings('ul').toggle();
+    if (display == 'none') {
+      $(this).siblings('ul').show();
+    }
   });
+
   $('#block-views-menu-block .item-list').find('ul').find('a').tooltipster({
     arrow: false,
     position: 'bottom',
