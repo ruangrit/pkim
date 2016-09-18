@@ -18,12 +18,14 @@ $(document).ready(function () {
     }
   });
 
+  /*
   $('#block-views-menu-block .item-list').find('ul').find('a').tooltipster({
     arrow: false,
     position: 'bottom',
     offsetY: -10,
     theme: 'tooltipster-shadow',
   });
+  */
   //var nid = getParameterByName('nid');
   var nid = $('#nid').html();
   var active_node = $('#block-views-menu-block .item-list').find('ul').find('a.'+nid);

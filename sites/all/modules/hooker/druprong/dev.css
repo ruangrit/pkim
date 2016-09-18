@@ -2,7 +2,6 @@
   border-top: 0px !important;
 }
 body {
-	font-family: monaco !important;
 }
 .well {
 	background-color: #FFF !important;
@@ -16,13 +15,11 @@ body {
 }
 #block-views-menu-block h3 {
 	font-size: 13px;
+        color: #666;
 }
 #block-views-menu-block .field-content a{
 	font-size: 10px;
-}
-#block-views-menu-block a {
-	color: #000;
-	font-size: .9em;
+        color: #666;
 }
 .control-gellary a {
 	color: #000;
@@ -60,7 +57,37 @@ body {
 	padding: 8px 10px;
         font-style: italic;
 }
-.view-menu .view-header {
-  color: #7E7D7D;
+.view-menu .view-header a {
+  color: #666 !important;
+  font-size: 1.1em;
 }
 
+.view-menu .view-header  {
+  margin-top: 18px;
+  margin-bottom: 37px;
+}
+.view-menu .view-footer a {
+  color: #666 !important;
+
+}
+.view-menu .view-footer {
+  position: relative;
+  top: -10px;
+}
+.view-menu .view-footer li{
+  margin-bottom: 8px;
+}
+.node-gallery .description {
+	padding-top: 30px;
+	text-align: left;
+	/*padding-left: 170px;*/
+}
+.view-header a.active {
+  text-decoration: none !important;
+}
+.page-node .page-header {
+  display:none;
+}
+.page-node .content {
+  margin-top: 35px;
+}

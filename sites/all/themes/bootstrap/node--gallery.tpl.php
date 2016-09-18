@@ -118,9 +118,10 @@
         data-cycle-caption=".caption2">
 	      <?php
 		foreach($content['field_gallery']['#items'] as $image) {
+
 		  $path = file_create_url($image['uri']);
 		?>
-			  <img class="large-image" title="<?php print $node->title;?>" src="<?php print $path ?>" style="width:800px; cursor: pointer">
+			  <img class="large-image" title="<?php print $image['title'];?>" src="<?php print $path ?>" style="width:800px; cursor: pointer">
 		<?php
 		}
 		?>
@@ -140,7 +141,16 @@
         </div>
 
     </div>
-    </td></tr></table>
+    </td></tr>
+    <tr><td class="description" style="display:none">
+      
+    <div>
+      <?php print $content['body']['#items'][0]['value']; ?>
+    </div>
+
+    </td></tr>
+    </table>
+
     <?php if ($content['links']): ?>
       <div class="node-links">
         <?php print render($content['links']); ?>
@@ -186,6 +196,7 @@
           $('#loading').hide();
           $('.slideshow').show();
           $('.control-gellary').show();
+          $('.description').show();
         });
 
         $(document).keydown(function(e) {
