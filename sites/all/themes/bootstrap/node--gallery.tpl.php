@@ -114,7 +114,7 @@
         data-cycle-prev="#prev"
         data-cycle-next="#next"
         data-cycle-speed=10
-        data-cycle-caption-template="{{slideNum2}} | {{slideCount2}}"
+        data-cycle-caption-template='{{slideNum2}} | {{slideCount2}} <span style="position:absolute; top:1014px; left:186px" class="title-image">{{title}}</span>'
         data-cycle-caption=".caption2">
 	      <?php
 		foreach($content['field_gallery']['#items'] as $image) {
@@ -139,13 +139,16 @@
             <span id="next"> next</span>
             <div style="margin-top: 5px" class="home"><?php print l('back', '<front>'); ?></div>
         </div>
-
     </div>
     </td></tr>
     <tr><td class="description" style="display:none">
       
     <div>
-      <?php print $content['body']['#items'][0]['value']; ?>
+      <?php 
+         if (isset($content['body'])) {
+           print $content['body']['#items'][0]['value']; 
+         }
+       ?>
     </div>
 
     </td></tr>

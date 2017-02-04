@@ -18,6 +18,17 @@ $(document).ready(function () {
     }
   });
 
+  $('#block-views-menu-block').find('.more-menu').find('ul').hide();
+  $('#block-views-menu-block').find('.more-menu').find('.about').click(function () {
+
+    var display = $(this).find('ul').css('display');
+    console.log(display);
+    $(this).find('ul').hide();
+    if (display == 'none') {
+      $(this).find('ul').show();
+    }
+  });
+
   /*
   $('#block-views-menu-block .item-list').find('ul').find('a').tooltipster({
     arrow: false,

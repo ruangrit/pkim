@@ -74,7 +74,7 @@ body {
   position: relative;
   top: -10px;
 }
-.view-menu .view-footer li{
+.view-menu li.main{
   margin-bottom: 8px;
 }
 .node-gallery .description {
