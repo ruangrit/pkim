@@ -18,7 +18,7 @@ $(document).ready(function () {
     }
   });
 
-  $('#block-views-menu-block').find('.more-menu').find('ul').hide();
+  //$('#block-views-menu-block').find('.more-menu').find('ul').hide();
   $('#block-views-menu-block').find('.more-menu').find('.about').click(function () {
 
     var display = $(this).find('ul').css('display');
